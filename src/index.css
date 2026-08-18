@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { 
+    font-family: 'Inter', sans-serif; 
+  }
+}
+
+@layer utilities {
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
+  
+  /* Glassmorphism precise tuning for level 2 */
+  .glass-card {
+      background-color: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(0, 91, 191, 0.08);
+  }
+  .glass-card:hover {
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 12px 48px 0 rgba(0, 91, 191, 0.15); /* Tinted with primary color */
+  }
+  .glass-nav {
+      background-color: rgba(243, 250, 255, 0.85); /* surface color with opacity */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(193, 198, 214, 0.3); /* outline-variant */
+  }
+}
