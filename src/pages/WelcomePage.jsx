@@ -1,7 +1,39 @@
 import React from 'react';
 import logo from '../assets/logo.png';
-
+import { useGoogleLogin } from '@react-oauth/google';
 export default function WelcomePage() {
+  // Khởi tạo hàm đăng nhập
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      console.log("Đăng nhập thành công, Token Google:", tokenResponse);
+      
+      try {
+        // Cầu nối Fetch API gửi token xuống Spring Boot
+        const response = await fetch('http://localhost:8080/api/auth/google', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            token: tokenResponse.access_token 
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Backend trả về:", data);
+          // Tạm thời log ra, khi nào backend xong mình sẽ lưu JWT và chuyển trang ở đây
+        } else {
+          console.error("Backend báo lỗi:", response.status);
+        }
+      } catch (error) {
+        console.error("Lỗi khi kết nối với Backend:", error);
+      }
+    },
+    onError: () => {
+      console.log('Đăng nhập Google thất bại');
+    }
+  });
   return (
     <div className="min-h-screen bg-surface-bright relative overflow-hidden flex flex-col selection:bg-primary/20 selection:text-primary">
 
@@ -69,7 +101,11 @@ export default function WelcomePage() {
                 <span className="text-label-sm text-on-surface-variant/70">Hoặc</span>
                 <div className="flex-1 h-[1px] bg-outline-variant/20"></div>
               </div>
-              <button className="flex items-center justify-center gap-3 bg-white border border-outline-variant/20 px-8 py-3 rounded-xl shadow-sm hover:shadow-md hover:bg-surface-bright transition-all duration-300 group w-full">
+              <button 
+                onClick={() => handleGoogleLogin()}
+                type="button"
+                className="flex items-center justify-center gap-3 bg-white border border-outline-variant/20 px-8 py-3 rounded-xl shadow-sm hover:shadow-md hover:bg-surface-bright transition-all duration-300 group w-full"
+              >
                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-1 .67-2.28 1.07-3.71 1.07-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
