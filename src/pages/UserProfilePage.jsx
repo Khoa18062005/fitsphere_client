@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNavBar from '../components/SideNavBar';
+import TopNavBar from '../components/TopNavBar';
 
 export default function UserProfilePage() {
   const navigate = useNavigate();
@@ -32,21 +33,7 @@ export default function UserProfilePage() {
       <div className="flex-1 flex flex-col h-full md:ml-72 w-full relative z-10">
       
       {/* TopNavBar */}
-      <header className="bg-surface/70 dark:bg-surface-variant/70 backdrop-blur-lg docked full-width top-0 sticky z-50 border-b border-white/20 shadow-sm flex justify-between items-center px-gutter w-full mx-auto h-16">
-        <div className="flex items-center gap-4">
-            <button className="md:hidden text-on-surface p-2">
-                <span className="material-symbols-outlined">menu</span>
-            </button>
-            <div className="text-[22px] font-bold text-primary dark:text-primary-fixed hidden md:block cursor-pointer" onClick={() => navigate('/home')}>
-                Đoàn - Hội Khoa
-            </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 transition-colors p-2 rounded-full cursor-pointer">notifications</span>
-          <span className="material-symbols-outlined text-on-surface-variant hover:bg-primary/10 transition-colors p-2 rounded-full cursor-pointer">apps</span>
-          <img className="w-8 h-8 rounded-full border border-outline-variant object-cover ml-2 cursor-pointer" onClick={() => navigate('/home')} alt="Avatar" referrerPolicy="no-referrer" src={user?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDwuyYPAAlUT_L2iGNFkupswAkVLp6m-RTNJNWCsfYyT6A0xNVkRtos3ZgyZm7ZzcQAiabuNb-wZsA5Gw65VHUaEZNsPkNoL5XJrXIskVr-og1wSNe9GJ74A_Tr78HoUtsh5UZQh11-yBte5VcJZeXfeAkgEei7hzmLb18WC43NlqkPDE-zwpO7g2zH2UBgCuoXhs64OlseQLvR4b0fYKx0XyNj3OXNLWLlmZpWKjpo5JbavkgEg26OKg"} />
-        </div>
-      </header>
+      <TopNavBar />
       <main className="flex-1 overflow-y-auto w-full p-4 md:p-8">
         <div className="max-w-[1200px] mx-auto flex flex-col gap-section-gap pb-24 md:pb-8">
         {/* Profile Header */}

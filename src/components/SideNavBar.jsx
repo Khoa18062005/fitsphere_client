@@ -45,6 +45,14 @@ export default function SideNavBar({ activeTab }) {
                     <span className="font-label-md text-label-md">Quản lý đoàn viên</span>
                 </a>
                 
+                <a 
+                    className={`flex items-center gap-3 py-3 px-4 rounded-lg mx-2 cursor-pointer transition-all ${activeTab === 'personnel' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform'}`} 
+                    onClick={() => navigate('/personnel')}
+                >
+                    <span className="material-symbols-outlined" style={activeTab === 'personnel' ? { fontVariationSettings: "'FILL' 1" } : {}}>corporate_fare</span>
+                    <span className="font-label-md text-label-md">Tổ chức nhân sự</span>
+                </a>
+                
                 <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
                     <span className="material-symbols-outlined">account_balance_wallet</span>
                     <span className="font-label-md text-label-md">Tài chính</span>
