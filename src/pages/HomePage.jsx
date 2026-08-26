@@ -1,58 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import SideNavBar from '../components/SideNavBar';
 
 export default function HomePage() {
+    const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/welcome');
+    };
+
     return (
         <div className="bg-background text-on-background font-body-md text-body-md h-screen overflow-hidden flex selection:bg-primary-container selection:text-on-primary-container">
 
             {/* SideNavBar (Desktop) */}
-            <nav className="hidden md:flex flex-col bg-surface-container-low dark:bg-surface-container-lowest h-screen w-72 fixed left-0 top-0 overflow-y-auto border-r border-outline-variant/30 shadow-lg shadow-primary/5 py-6 px-4 z-40">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8 px-2">
-                    <div className="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center overflow-hidden">
-                        <img className="w-full h-full object-cover" data-alt="A modern, vibrant abstract logo representing a university faculty youth union, featuring dynamic geometric shapes in shades of blue and white, set against a pristine, brightly lit studio background, conveying professionalism and youthful energy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_5FXpzZxtevbaKVJoJt-uxpD4u6XYtcdMqe-vgoBgLLIue1iC0maXZegVhJIk76umhWfLW3QDFhiYsuaHx2sbfk5jyEsuqtyk4QHouQpStbdkBMuJM2pbOTDvlRScEsWrrlQpiWwq0aDXP0PYOJPKcth-Psknq8hdRgSGd8ZVz7h2K3b9hL3XteH1882L2LlB9L0t7reG4XOmW-wxhnbpkZTwx0jE4pcti8m1_ETvTWUFOWkkIuytSg" />
-                    </div>
-                    <div>
-                        <h1 className="font-headline-md text-headline-md font-black text-on-surface">Quản lý Đoàn - Hội</h1>
-                        <p className="font-label-sm text-label-sm text-on-surface-variant">Hệ thống quản trị</p>
-                    </div>
-                </div>
-                {/* Navigation Links */}
-                <div className="flex flex-col gap-2 flex-1">
-                    {/* Active Tab: Trang chủ */}
-                    <a className="flex items-center gap-3 py-3 px-4 bg-primary-container text-on-primary-container font-bold rounded-lg mx-2 transition-all" href="#">
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
-                        <span className="font-label-md text-label-md">Trang chủ</span>
-                    </a>
-                    {/* Inactive Tabs */}
-                    <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform" href="#">
-                        <span className="material-symbols-outlined">event</span>
-                        <span className="font-label-md text-label-md">Sự kiện</span>
-                    </a>
-                    <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform" href="#">
-                        <span className="material-symbols-outlined">groups</span>
-                        <span className="font-label-md text-label-md">Quản lý đoàn viên</span>
-                    </a>
-                    <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform" href="#">
-                        <span className="material-symbols-outlined">account_balance_wallet</span>
-                        <span className="font-label-md text-label-md">Tài chính</span>
-                    </a>
-                    <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform" href="#">
-                        <span className="material-symbols-outlined">military_tech</span>
-                        <span className="font-label-md text-label-md">Thi đua</span>
-                    </a>
-                </div>
-                {/* Bottom Actions */}
-                <div className="mt-auto flex flex-col gap-4">
-                    <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform" href="#">
-                        <span className="material-symbols-outlined">settings</span>
-                        <span className="font-label-md text-label-md">Cài đặt</span>
-                    </a>
-                    <button className="w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm flex justify-center items-center gap-2">
-                        <span className="material-symbols-outlined text-[18px]">add</span>
-                        Tạo sự kiện mới
-                    </button>
-                </div>
-            </nav>
+            <SideNavBar activeTab="home" />
             {/* Main Content Wrapper */}
             <div className="flex-1 flex flex-col h-full md:ml-72 w-full relative z-10">
                 {/* TopNavBar */}
@@ -61,7 +33,7 @@ export default function HomePage() {
                         <button className="md:hidden text-on-surface p-2">
                             <span className="material-symbols-outlined">menu</span>
                         </button>
-                        <div className="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed hidden md:block">
+                        <div className="text-[22px] font-bold text-primary dark:text-primary-fixed hidden md:block cursor-pointer" onClick={() => navigate('/home')}>
                             Đoàn - Hội Khoa
                         </div>
                     </div>
@@ -79,8 +51,49 @@ export default function HomePage() {
                             <span className="material-symbols-outlined">apps</span>
                         </button>
                         {/* Profile */}
-                        <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50 cursor-pointer hover:scale-95 transition-transform">
-                            <img className="w-full h-full object-cover" data-alt="A professional portrait photo of a university student serving as a youth union leader, smiling brightly. The lighting is soft and natural, emphasizing a youthful and approachable demeanor, set against a clean, out-of-focus modern campus background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDymyhyp9xfH5_cyBVazCITdEB89IhlHyfXjd1KfnhO5bJvBV_s6FY0SaFVd4OxhJGSDe_IZXdifHjbKfsofJ7Bpc2HyP_9GKg4dH4LgC74gfRwt_WkSy76J-sdZPeQ9LIe9AfyjUwveIg_rVQZ8PHnOsX0mLzYkEELYmOm115ELHkY2_bQcwtR9KwY7F8WbCM3MtqZiG3zQNOVcKiPiY29LCOWpsmk7n-5d6pbsA2rc6MIb6uB9G9VIA" />
+                        <div className="relative">
+                            <div 
+                                className="flex items-center gap-2 cursor-pointer hover:bg-surface-variant/50 p-1 pr-3 rounded-full transition-colors"
+                                onClick={() => setShowDropdown(!showDropdown)}
+                            >
+                                <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50">
+                                    <img 
+                                        className="w-full h-full object-cover" 
+                                        alt="User Avatar" 
+                                        referrerPolicy="no-referrer"
+                                        src={user?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDymyhyp9xfH5_cyBVazCITdEB89IhlHyfXjd1KfnhO5bJvBV_s6FY0SaFVd4OxhJGSDe_IZXdifHjbKfsofJ7Bpc2HyP_9GKg4dH4LgC74gfRwt_WkSy76J-sdZPeQ9LIe9AfyjUwveIg_rVQZ8PHnOsX0mLzYkEELYmOm115ELHkY2_bQcwtR9KwY7F8WbCM3MtqZiG3zQNOVcKiPiY29LCOWpsmk7n-5d6pbsA2rc6MIb6uB9G9VIA"} 
+                                    />
+                                </div>
+                                <span className="font-label-md text-label-md text-on-surface hidden sm:block">
+                                    {user?.fullName || "Khách"}
+                                </span>
+                                <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
+                                    arrow_drop_down
+                                </span>
+                            </div>
+
+                            {/* Dropdown Menu */}
+                            {showDropdown && (
+                                <div className="absolute right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-outline-variant/20 py-2 z-50">
+                                    <div className="px-4 py-2 border-b border-outline-variant/20 mb-2">
+                                        <p className="font-label-md text-on-surface truncate text-center">{user?.studentId || "Chưa cập nhật MSSV"}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => navigate('/user-profile')}
+                                        className="w-full text-left px-4 py-2 text-on-surface hover:bg-primary/10 transition-colors flex items-center gap-2 font-label-md"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">person</span>
+                                        Hồ sơ cá nhân
+                                    </button>
+                                    <button 
+                                        onClick={handleLogout}
+                                        className="w-full text-left px-4 py-2 text-error hover:bg-error/10 transition-colors flex items-center gap-2 font-label-md mt-1"
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">logout</span>
+                                        Đăng xuất
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </header>

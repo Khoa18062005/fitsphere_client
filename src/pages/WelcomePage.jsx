@@ -1,7 +1,9 @@
 import React from 'react';
 import logo from '../assets/logo.png';
+import { useNavigate } from 'react-router-dom'; 
 import { useGoogleLogin } from '@react-oauth/google';
 export default function WelcomePage() {
+  const navigate = useNavigate();
   // Khởi tạo hàm đăng nhập
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -22,7 +24,15 @@ export default function WelcomePage() {
         if (response.ok) {
           const data = await response.json();
           console.log("Backend trả về:", data);
-          // Tạm thời log ra, khi nào backend xong mình sẽ lưu JWT và chuyển trang ở đây
+          
+          // Lưu token và user vào LocalStorage
+          localStorage.setItem('token', data.token);
+          if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
+          
+          // Chuyển hướng sang trang home
+          navigate('/home');
         } else {
           console.error("Backend báo lỗi:", response.status);
         }
@@ -114,7 +124,7 @@ export default function WelcomePage() {
                 </svg>
                 <span className="font-label-md text-on-surface">Đăng nhập bằng Google</span>
               </button>
-              <button className="flex items-center justify-center gap-2 border border-primary text-primary px-8 py-3 rounded-xl hover:bg-primary/5 transition-all duration-300 w-full group">
+              <button onClick={() => navigate('/home')} className="flex items-center justify-center gap-2 border border-primary text-primary px-8 py-3 rounded-xl hover:bg-primary/5 transition-all duration-300 w-full group">
                 <span className="material-symbols-outlined text-[20px] group-hover:text-surface-tint">visibility</span>
                 <span className="font-label-md group-hover:text-surface-tint">Xem ở chế độ khách</span>
               </button>
