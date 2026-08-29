@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useSidebar } from '../hooks/useSidebar';
 import { organizationService } from '../services/organizationService';
 import SideNavBar from '../components/SideNavBar';
 import TopNavBar from '../components/TopNavBar';
 import logo from '../assets/logo.png';
 
 export default function PersonnelPage() {
+    const { isCollapsed } = useSidebar();
     const [units, setUnits] = useState([]);
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -305,12 +307,12 @@ export default function PersonnelPage() {
             <SideNavBar activeTab="personnel" />
 
             {/* Main Content Wrapper */}
-            <div className="flex-1 flex flex-col h-full md:ml-72 relative z-10 min-w-0">
+            <div className={`flex flex-col h-full relative z-10 transition-all duration-300 ${isCollapsed ? 'md:ml-20 w-full md:w-[calc(100%-5rem)]' : 'md:ml-72 w-full md:w-[calc(100%-18rem)]'}`}>
                 <TopNavBar />
 
                 {/* Main Content */}
-                <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide w-full p-4 md:p-8 min-w-0">
-                    <div className="max-w-[1200px] mx-auto flex flex-col gap-6 pb-24 md:pb-8 min-w-0 w-full">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide w-full p-4 md:pl-8 md:pr-7 md:py-8 min-w-0">
+                    <div className="w-full mx-auto flex flex-col gap-6 pb-24 md:pb-8 min-w-0 w-full">
                 
                 <style>{`
                     @keyframes gradient-x {
@@ -340,6 +342,12 @@ export default function PersonnelPage() {
 
                 {/* Hero Section Carousel */}
                 <section className="w-full relative rounded-2xl overflow-hidden glass-card min-h-[400px] flex items-center justify-center mt-4 md:mt-0 transition-all duration-500">
+                    {/* Nút Điều chỉnh */}
+                    <button className="absolute top-4 right-4 z-30 flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all font-label-md font-bold">
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                        <span className="hidden sm:inline">Điều chỉnh</span>
+                    </button>
+
                     {SLIDES.map((slide, index) => (
                         <div key={slide.id} className={`absolute inset-0 w-full h-full flex items-center transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 z-0'}`}>
                             {/* Background Image Overlay */}

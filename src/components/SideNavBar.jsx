@@ -1,78 +1,117 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
+import logoSmall from '../assets/logo-small.png';
+import { useSidebar } from '../hooks/useSidebar';
 
 export default function SideNavBar({ activeTab }) {
     const navigate = useNavigate();
+    const { isCollapsed, toggleSidebar } = useSidebar();
 
     return (
-        <nav className="hidden md:flex flex-col bg-surface-container-low dark:bg-surface-container-lowest h-screen w-72 fixed left-0 top-0 overflow-y-auto border-r border-outline-variant/30 shadow-lg shadow-primary/5 py-6 px-4 z-40">
+        <nav className={`hidden md:flex flex-col bg-surface-container-low dark:bg-surface-container-lowest h-screen fixed left-0 top-0 border-r border-outline-variant/30 shadow-lg shadow-primary/5 py-6 z-40 transition-all duration-300 ${isCollapsed ? 'w-20 px-2' : 'w-72 px-4'}`}>
+            
+            {/* Toggle Button */}
+            <button 
+                onClick={toggleSidebar}
+                className="absolute top-4 -right-3.5 w-7 h-7 bg-surface border border-outline-variant/50 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-variant transition-colors shadow-sm z-50 cursor-pointer"
+            >
+                <span className="material-symbols-outlined text-[16px]">
+                    {isCollapsed ? 'chevron_right' : 'chevron_left'}
+                </span>
+            </button>
+
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8 px-2 cursor-pointer" onClick={() => navigate('/home')}>
-                <div className="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center overflow-hidden">
-                    <img className="w-full h-full object-cover" alt="Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_5FXpzZxtevbaKVJoJt-uxpD4u6XYtcdMqe-vgoBgLLIue1iC0maXZegVhJIk76umhWfLW3QDFhiYsuaHx2sbfk5jyEsuqtyk4QHouQpStbdkBMuJM2pbOTDvlRScEsWrrlQpiWwq0aDXP0PYOJPKcth-Psknq8hdRgSGd8ZVz7h2K3b9hL3XteH1882L2LlB9L0t7reG4XOmW-wxhnbpkZTwx0jE4pcti8m1_ETvTWUFOWkkIuytSg" />
-                </div>
-                <div>
-                    <h1 className="font-headline-md text-headline-md font-black text-on-surface">Quản lý Đoàn - Hội</h1>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant">Hệ thống quản trị</p>
-                </div>
+            <div className={`relative flex items-center justify-center mb-8 px-4 cursor-pointer h-16 -mt-6 border-b border-outline-variant/30 shrink-0 transition-all duration-300 ${isCollapsed ? '-mx-2' : '-mx-4'}`} onClick={() => navigate('/home')}>
+                <img 
+                    className={`absolute transition-all duration-300 ease-in-out object-contain ${isCollapsed ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100 w-[180px]'}`} 
+                    alt="Logo" 
+                    src={logo} 
+                />
+                <img 
+                    className={`absolute transition-all duration-300 ease-in-out object-contain ${isCollapsed ? 'opacity-100 scale-100 w-12' : 'opacity-0 scale-50 pointer-events-none'}`} 
+                    alt="Small Logo" 
+                    src={logoSmall} 
+                />
             </div>
             
             {/* Navigation Links */}
-            <div className="flex flex-col gap-2 flex-1">
+            <div className="flex flex-col gap-2 flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
                 <a 
-                    className={`flex items-center gap-3 py-3 px-4 rounded-lg mx-2 cursor-pointer transition-all ${activeTab === 'home' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform'}`} 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} ${activeTab === 'home' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1'}`} 
                     onClick={() => navigate('/home')}
+                    title={isCollapsed ? "Trang chủ" : ""}
                 >
-                    <span className="material-symbols-outlined" style={activeTab === 'home' ? { fontVariationSettings: "'FILL' 1" } : {}}>dashboard</span>
-                    <span className="font-label-md text-label-md">Trang chủ</span>
+                    <span className="material-symbols-outlined shrink-0" style={activeTab === 'home' ? { fontVariationSettings: "'FILL' 1" } : {}}>dashboard</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Trang chủ</span>}
                 </a>
                 
                 <a 
-                    className={`flex items-center gap-3 py-3 px-4 rounded-lg mx-2 cursor-pointer transition-all ${activeTab === 'profile' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform'}`} 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} ${activeTab === 'profile' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1'}`} 
                     onClick={() => navigate('/user-profile')}
+                    title={isCollapsed ? "Thông tin cá nhân" : ""}
                 >
-                    <span className="material-symbols-outlined" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
-                    <span className="font-label-md text-label-md">Thông tin cá nhân</span>
+                    <span className="material-symbols-outlined shrink-0" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Thông tin cá nhân</span>}
                 </a>
 
-                <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
-                    <span className="material-symbols-outlined">event</span>
-                    <span className="font-label-md text-label-md">Sự kiện</span>
-                </a>
-                
-                <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
-                    <span className="material-symbols-outlined">groups</span>
-                    <span className="font-label-md text-label-md">Quản lý đoàn viên</span>
+                <a 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1`}
+                    title={isCollapsed ? "Sự kiện" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0">event</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Sự kiện</span>}
                 </a>
                 
                 <a 
-                    className={`flex items-center gap-3 py-3 px-4 rounded-lg mx-2 cursor-pointer transition-all ${activeTab === 'personnel' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform'}`} 
-                    onClick={() => navigate('/personnel')}
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1`}
+                    title={isCollapsed ? "Quản lý đoàn viên" : ""}
                 >
-                    <span className="material-symbols-outlined" style={activeTab === 'personnel' ? { fontVariationSettings: "'FILL' 1" } : {}}>corporate_fare</span>
-                    <span className="font-label-md text-label-md">Tổ chức nhân sự</span>
+                    <span className="material-symbols-outlined shrink-0">groups</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Quản lý đoàn viên</span>}
                 </a>
                 
-                <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
-                    <span className="material-symbols-outlined">account_balance_wallet</span>
-                    <span className="font-label-md text-label-md">Tài chính</span>
+                <a 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} ${activeTab === 'personnel' ? 'bg-primary-container text-on-primary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1'}`} 
+                    onClick={() => navigate('/personnel')}
+                    title={isCollapsed ? "Tổ chức nhân sự" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0" style={activeTab === 'personnel' ? { fontVariationSettings: "'FILL' 1" } : {}}>corporate_fare</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Tổ chức nhân sự</span>}
                 </a>
                 
-                <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
-                    <span className="material-symbols-outlined">military_tech</span>
-                    <span className="font-label-md text-label-md">Thi đua</span>
+                <a 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1`}
+                    title={isCollapsed ? "Tài chính" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0">account_balance_wallet</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Tài chính</span>}
+                </a>
+                
+                <a 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1`}
+                    title={isCollapsed ? "Thi đua" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0">military_tech</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Thi đua</span>}
                 </a>
             </div>
             
             {/* Bottom Actions */}
-            <div className="mt-auto flex flex-col gap-4">
-                <a className="flex items-center gap-3 py-3 px-4 text-on-surface-variant hover:bg-surface-container-highest rounded-lg mx-2 hover:translate-x-1 transition-transform cursor-pointer">
-                    <span className="material-symbols-outlined">settings</span>
-                    <span className="font-label-md text-label-md">Cài đặt</span>
+            <div className="mt-4 flex flex-col gap-4 shrink-0">
+                <a 
+                    className={`flex items-center py-3 rounded-lg cursor-pointer transition-all ${isCollapsed ? 'justify-center px-0 mx-1' : 'gap-3 px-4 mx-2'} text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1`}
+                    title={isCollapsed ? "Cài đặt" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0">settings</span>
+                    {!isCollapsed && <span className="font-label-md text-label-md truncate">Cài đặt</span>}
                 </a>
-                <button className="w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm flex justify-center items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">add</span>
-                    Tạo sự kiện mới
+                <button 
+                    className={`w-full py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm flex justify-center items-center ${isCollapsed ? 'px-0' : 'px-4 gap-2'}`}
+                    title={isCollapsed ? "Tạo sự kiện mới" : ""}
+                >
+                    <span className="material-symbols-outlined shrink-0 text-[18px]">add</span>
+                    {!isCollapsed && "Tạo sự kiện mới"}
                 </button>
             </div>
         </nav>

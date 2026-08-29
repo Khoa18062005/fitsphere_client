@@ -1,6 +1,8 @@
 import React from 'react';
+import { useSidebar } from '../hooks/useSidebar';
 
 export default function AdminPage() {
+    const { isCollapsed } = useSidebar();
     return (
         <div className="bg-background text-on-background min-h-screen font-body-md text-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
 
@@ -77,14 +79,14 @@ export default function AdminPage() {
                 </div>
             </nav>
             {/* Main Content Canvas */}
-            <main className="md:ml-72 flex flex-col min-h-screen relative pb-24 md:pb-8">
+            <main className={`w-full relative z-10 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-72'}`}>
                 {/* Background Decorative Element (Shader integration point if needed, using subtle gradient here for layout stability) */}
                 <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
                     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]"></div>
                     <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-tertiary-container/5 rounded-full blur-[120px]"></div>
                 </div>
                 {/* TopNavBar (Integrated within main area for proper layout flow on desktop, sticky on mobile) */}
-                <header className="sticky top-0 z-30 flex justify-between items-center px-gutter w-full max-w-[1200px] mx-auto h-16 bg-surface/70 backdrop-blur-lg border-b border-white/20 shadow-sm">
+                <header className="sticky top-0 z-30 flex justify-between items-center px-gutter w-full w-full mx-auto h-16 bg-surface/70 backdrop-blur-lg border-b border-white/20 shadow-sm">
                     <div className="flex items-center gap-4">
                         <span className="md:hidden font-headline-md text-headline-md font-bold text-primary">Đoàn - Hội Khoa</span>
                         {/* Desktop Search / Breadcrumb could go here */}
@@ -107,7 +109,7 @@ export default function AdminPage() {
                     </div>
                 </header>
                 {/* Page Content */}
-                <div className="relative z-10 w-full max-w-[1200px] mx-auto px-gutter md:px-container-margin py-8 flex flex-col gap-section-gap">
+                <div className="relative z-10 w-full w-full mx-auto px-gutter md:pl-8 md:pr-7 py-8 flex flex-col gap-section-gap">
                     {/* Page Header */}
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>

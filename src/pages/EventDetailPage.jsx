@@ -1,6 +1,8 @@
 import React from 'react';
+import { useSidebar } from '../hooks/useSidebar';
 
 export default function EventDetailPage() {
+    const { isCollapsed } = useSidebar();
   return (
     <div className="bg-background text-on-surface font-body-md antialiased overflow-x-hidden min-h-screen flex">
       {/* SideNavBar */}
@@ -98,7 +100,7 @@ export default function EventDetailPage() {
         </header>
 
         {/* Page Content */}
-        <div className="max-w-[1200px] mx-auto p-4 md:p-8 space-y-section-gap">
+        <div className="w-full mx-auto p-4 md:pl-8 md:pr-7 md:py-8 space-y-section-gap">
           {/* Hero Section */}
           <section className="relative rounded-[24px] overflow-hidden shadow-2xl shadow-primary/10 bg-surface-container-highest">
             <div className="aspect-[16/9] md:aspect-[21/9] w-full relative">
@@ -185,7 +187,7 @@ export default function EventDetailPage() {
               </div>
 
               {/* Description */}
-              <div className="glass-card rounded-[20px] p-6 md:p-8">
+              <div className="glass-card rounded-[20px] p-6 md:pl-8 md:pr-7 md:py-8">
                 <h2 className="font-headline-md text-headline-md text-primary mb-4 flex items-center gap-2">
                   <span className="material-symbols-outlined">info</span>
                   Thông tin chi tiết
@@ -208,7 +210,7 @@ export default function EventDetailPage() {
               </div>
 
               {/* Schedule Timeline */}
-              <div className="glass-card rounded-[20px] p-6 md:p-8">
+              <div className="glass-card rounded-[20px] p-6 md:pl-8 md:pr-7 md:py-8">
                 <h2 className="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
                   <span className="material-symbols-outlined">schedule</span>
                   Lịch trình dự kiến

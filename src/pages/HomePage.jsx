@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNavBar from '../components/SideNavBar';
 import TopNavBar from '../components/TopNavBar';
+import { useSidebar } from '../hooks/useSidebar';
 
 export default function HomePage() {
     const navigate = useNavigate();
+    const { isCollapsed } = useSidebar();
 
     return (
         <div className="bg-background text-on-background font-body-md text-body-md h-screen overflow-hidden flex selection:bg-primary-container selection:text-on-primary-container">
@@ -12,12 +14,12 @@ export default function HomePage() {
             {/* SideNavBar (Desktop) */}
             <SideNavBar activeTab="home" />
             {/* Main Content Wrapper */}
-            <div className="flex-1 flex flex-col h-full md:ml-72 w-full relative z-10">
+            <div className={`flex flex-col h-full relative z-10 transition-all duration-300 ${isCollapsed ? 'md:ml-20 w-full md:w-[calc(100%-5rem)]' : 'md:ml-72 w-full md:w-[calc(100%-18rem)]'}`}>
                 {/* TopNavBar */}
                 <TopNavBar />
                 {/* Scrollable Canvas */}
-                <main className="flex-1 overflow-y-auto w-full p-4 md:p-8">
-                    <div className="max-w-[1200px] mx-auto flex flex-col gap-section-gap pb-24 md:pb-8">
+                <main className="flex-1 overflow-y-auto w-full p-4 md:pl-8 md:pr-7 md:py-8">
+                    <div className="w-full mx-auto flex flex-col gap-section-gap pb-24 md:pb-8">
                         {/* Hero Section */}
                         <section className="w-full relative rounded-2xl overflow-hidden glass-card min-h-[400px] flex items-center p-8 md:p-12">
                             {/* Background Image Overlay */}
@@ -36,7 +38,7 @@ export default function HomePage() {
                                     <button className="px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-all shadow-md shadow-primary/20 hover:scale-[1.02]">
                                         Đăng ký ngay
                                     </button>
-                                    <button className="px-6 py-3 bg-transparent text-primary border border-primary rounded-xl font-label-md text-label-md hover:bg-primary/5 transition-all">
+                                    <button className="px-6 py-3 bg-transparent text-primary border border-primary rounded-xl font-label-md text-label-md hover:bg-primary/5 transition-all" onClick={() => navigate('/event-detail')}>
                                         Xem chi tiết
                                     </button>
                                 </div>

@@ -25,7 +25,7 @@ export default function TopNavBar() {
                 <button className="md:hidden text-on-surface p-2">
                     <span className="material-symbols-outlined">menu</span>
                 </button>
-                <div className="text-[22px] font-bold text-primary dark:text-primary-fixed hidden md:block cursor-pointer" onClick={() => navigate('/home')}>
+                <div className="ml-4 text-[22px] font-bold text-primary dark:text-primary-fixed hidden md:block cursor-pointer" onClick={() => navigate('/home')}>
                     Đoàn - Hội Khoa
                 </div>
             </div>

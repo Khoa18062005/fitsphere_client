@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSidebar } from '../hooks/useSidebar';
 import SideNavBar from '../components/SideNavBar';
 import TopNavBar from '../components/TopNavBar';
 
 export default function UserProfilePage() {
   const navigate = useNavigate();
+    const { isCollapsed } = useSidebar();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -30,14 +32,14 @@ export default function UserProfilePage() {
       <SideNavBar activeTab="profile" />
 
       {/* Main Content Wrapper */}
-      <div className="flex-1 flex flex-col h-full md:ml-72 w-full relative z-10">
+      <div className={`flex flex-col h-full relative z-10 transition-all duration-300 ${isCollapsed ? 'md:ml-20 w-full md:w-[calc(100%-5rem)]' : 'md:ml-72 w-full md:w-[calc(100%-18rem)]'}`}>
       
       {/* TopNavBar */}
       <TopNavBar />
-      <main className="flex-1 overflow-y-auto w-full p-4 md:p-8">
-        <div className="max-w-[1200px] mx-auto flex flex-col gap-section-gap pb-24 md:pb-8">
+      <main className="flex-1 overflow-y-auto w-full p-4 md:pl-8 md:pr-7 md:py-8">
+        <div className="w-full mx-auto flex flex-col gap-section-gap pb-24 md:pb-8">
         {/* Profile Header */}
-        <section className="glass-card rounded-xl p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden">
+        <section className="glass-card rounded-xl p-6 md:pl-8 md:pr-7 md:py-8 flex flex-col md:flex-row items-center md:items-start gap-6 relative overflow-hidden">
           {/* Decorative background element */}
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="relative shrink-0">
