@@ -5,11 +5,15 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import App from './App.jsx'
 
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* Truyền biến môi trường .env lúc nãy vào đây */}
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <App />
-    </GoogleOAuthProvider>
+    <Provider store={store}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <App />
+      </GoogleOAuthProvider>
+    </Provider>
   </StrictMode>,
 )
