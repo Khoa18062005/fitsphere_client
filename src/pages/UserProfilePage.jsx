@@ -64,6 +64,9 @@ export default function UserProfilePage() {
             <button className="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm shadow-primary/20">
               <span className="material-symbols-outlined text-[20px]">edit</span> Chỉnh sửa
             </button>
+            <button onClick={() => navigate('/update-password')} className="bg-white text-primary border border-primary/30 font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-2 shadow-sm">
+              <span className="material-symbols-outlined text-[20px]">password</span> Thiết lập mật khẩu
+            </button>
             <button onClick={handleLogout} className="bg-error text-on-error font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-error/90 transition-colors flex items-center gap-2 shadow-sm shadow-error/20">
               <span className="material-symbols-outlined text-[20px]">logout</span> Đăng xuất
             </button>
@@ -153,4 +156,3 @@ export default function UserProfilePage() {
     </div>
   );
 }
-

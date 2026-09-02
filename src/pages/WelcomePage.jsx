@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from '../assets/logo.png';
 import { useNavigate } from 'react-router-dom'; 
 import { useGoogleLogin } from '@react-oauth/google';
 export default function WelcomePage() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   // Khởi tạo hàm đăng nhập
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -98,13 +99,22 @@ export default function WelcomePage() {
                   <span className="material-symbols-outlined text-[18px]">lock</span>
                   Mật khẩu
                 </label>
-                <input className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" id="password" placeholder="••••••••" type="password" />
+                <div className="relative">
+                  <input className="w-full px-4 pr-12 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" id="password" placeholder="••••••••" type={showPassword ? "text" : "password"} />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none flex items-center justify-center p-1"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
+                  </button>
+                </div>
               </div>
               <button className="w-full bg-primary text-on-primary font-label-md py-3 rounded-xl hover:shadow-md transition-all duration-300 mt-2 hover:bg-surface-tint">
                 Đăng nhập
               </button>
               <div className="text-right">
-                <a className="text-label-sm text-primary hover:underline" href="#">Quên mật khẩu?</a>
+                <button onClick={() => navigate('/forgot-password')} type="button" className="text-label-sm text-primary hover:underline bg-transparent border-none p-0 cursor-pointer">Quên mật khẩu?</button>
               </div>
               <div className="flex items-center gap-4 my-2">
                 <div className="flex-1 h-[1px] bg-outline-variant/20"></div>

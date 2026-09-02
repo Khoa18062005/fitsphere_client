@@ -62,8 +62,9 @@ export default function TopNavBar() {
                     {/* Dropdown Menu */}
                     {showDropdown && (
                         <div className="absolute right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-outline-variant/20 py-2 z-50">
-                            <div className="px-4 py-2 border-b border-outline-variant/20 mb-2">
-                                <p className="font-label-md text-on-surface truncate text-center">{user?.studentId || "Chưa cập nhật MSSV"}</p>
+                            <div className="px-4 py-2 border-b border-outline-variant/20 mb-2 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[20px] text-on-surface-variant">badge</span>
+                                <p className="font-label-md text-on-surface truncate">{user?.studentId || "Chưa cập nhật MSSV"}</p>
                             </div>
                             <button 
                                 onClick={() => navigate('/user-profile')}

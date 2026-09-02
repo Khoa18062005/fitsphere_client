@@ -5,6 +5,10 @@ import UserProfilePage from './pages/UserProfilePage';
 import AdminPage from './pages/AdminPage';
 import PersonnelPage from './pages/PersonnelPage';
 import EventDetailPage from './pages/EventDetailPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import OtpPage from './pages/OtpPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import UpdatePasswordPage from './pages/UpdatePasswordPage';
 
 function App() {
   return (
@@ -17,6 +21,10 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/personnel" element={<PersonnelPage />} />
         <Route path="/event-detail" element={<EventDetailPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/otp" element={<OtpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
         {/* Missing YouthLeadershipPage since it has no code.html, adding fallback to home */}
         <Route path="*" element={<Navigate to="/welcome" replace />} />
       </Routes>
