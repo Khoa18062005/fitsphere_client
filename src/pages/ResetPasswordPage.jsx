@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -32,19 +32,44 @@ export default function ResetPasswordPage() {
     return 'Mạnh';
   };
 
-  const handleSubmit = (e) => {
+  const location = useLocation();
+  const email = location.state?.email || '';
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (strengthCount < 4) {
-      alert("Vui lòng đáp ứng đủ các tiêu chí mật khẩu mạnh!");
+      setErrorMsg("Vui lòng đáp ứng đủ các tiêu chí mật khẩu mạnh!");
       return;
     }
     if (password !== confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp!");
+      setErrorMsg("Mật khẩu xác nhận không khớp!");
       return;
     }
-    console.log("Cập nhật mật khẩu thành công!");
-    alert("Cập nhật mật khẩu thành công! Trở về trang đăng nhập.");
-    navigate('/welcome');
+    
+    setIsLoading(true);
+    setErrorMsg('');
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword: password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert("Cập nhật mật khẩu thành công! Trở về trang đăng nhập.");
+        navigate('/welcome');
+      } else {
+        setErrorMsg(data.error || 'Có lỗi xảy ra, vui lòng thử lại.');
+      }
+    } catch (err) {
+      setErrorMsg('Không thể kết nối đến server.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -158,9 +183,17 @@ export default function ResetPasswordPage() {
               </div>
             </div>
             
-            <button type="submit" className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 mt-2 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold">
-              <span>Đổi mật khẩu</span>
-              <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">done_all</span>
+            {errorMsg && (
+              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">error</span>
+                {errorMsg}
+              </div>
+            )}
+
+            <button type="submit" disabled={isLoading || strengthCount < 4} className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold disabled:opacity-70 disabled:pointer-events-none mt-2">
+              <span>{isLoading ? 'Đang cập nhật...' : 'Cập nhật Mật khẩu'}</span>
+              {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">check_circle</span>}
+              {isLoading && <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>}
             </button>
             
           </form>

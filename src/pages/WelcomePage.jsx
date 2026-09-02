@@ -2,9 +2,55 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.png';
 import { useNavigate } from 'react-router-dom'; 
 import { useGoogleLogin } from '@react-oauth/google';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/userSlice';
+
 export default function WelcomePage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleLocalLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setErrorMsg("Vui lòng nhập đầy đủ Email và Mật khẩu!");
+      return;
+    }
+    
+    setIsLoading(true);
+    setErrorMsg('');
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Lưu token và user vào LocalStorage
+        localStorage.setItem('token', data.token);
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          // Kích hoạt Redux Action
+          dispatch(loginSuccess(data.user));
+        }
+        navigate('/home');
+      } else {
+        setErrorMsg(data.error || 'Đăng nhập thất bại.');
+      }
+    } catch (err) {
+      setErrorMsg('Không thể kết nối đến server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Khởi tạo hàm đăng nhập
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -30,6 +76,8 @@ export default function WelcomePage() {
           localStorage.setItem('token', data.token);
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
+            // Kích hoạt Redux Action để lưu vào Global Store
+            dispatch(loginSuccess(data.user));
           }
           
           // Chuyển hướng sang trang home
@@ -78,44 +126,77 @@ export default function WelcomePage() {
         <div className="flex w-full flex-col lg:flex-row gap-16 lg:gap-12 xl:gap-24 items-stretch justify-between">
           
           {/* Hero Section (Left) */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center w-full">
-            <h2 className="font-display-lg text-[40px] md:text-display-lg leading-[1.2] md:leading-[56px] text-on-surface font-extrabold tracking-tight mb-6">
-              Chào mừng đến với <br />
-              <span className="text-primary">Cổng thông tin Đoàn - Hội</span>
-            </h2>
-            <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-xl">
-              Nơi kết nối sức trẻ, khơi dậy tiềm năng lãnh đạo và kiến tạo những giá trị cộng đồng bền vững. Tham gia cùng chúng tôi để phát triển bản thân và lan tỏa yêu thương.
-            </p>
-            <div className="w-full flex flex-col gap-4 max-w-[500px]">
-              <div className="flex flex-col gap-2 text-left">
-                <label className="font-label-sm text-on-surface-variant ml-1 flex items-center gap-2" htmlFor="email">
-                  <span className="material-symbols-outlined text-[18px]">mail</span>
-                  Email
-                </label>
-                <input className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" id="email" placeholder="your@email.com" type="email" />
-              </div>
-              <div className="flex flex-col gap-2 text-left">
-                <label className="font-label-sm text-on-surface-variant ml-1 flex items-center gap-2" htmlFor="password">
-                  <span className="material-symbols-outlined text-[18px]">lock</span>
-                  Mật khẩu
-                </label>
-                <div className="relative">
-                  <input className="w-full px-4 pr-12 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" id="password" placeholder="••••••••" type={showPassword ? "text" : "password"} />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none flex items-center justify-center p-1"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
-                  </button>
+          <div className="flex-1 flex flex-col justify-center items-center lg:items-start w-full">
+            <div className="flex flex-col items-center text-center w-full max-w-[650px]">
+              <h2 className="font-display-lg text-[40px] md:text-display-lg leading-[1.2] md:leading-[56px] text-on-surface font-extrabold tracking-tight mb-6">
+                Chào mừng đến với <br />
+                <span className="text-primary">Cổng thông tin Đoàn - Hội</span>
+              </h2>
+              <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 w-full">
+                Nơi kết nối sức trẻ, khơi dậy tiềm năng lãnh đạo và kiến tạo những giá trị cộng đồng bền vững. Tham gia cùng chúng tôi để phát triển bản thân và lan tỏa yêu thương.
+              </p>
+              <div className="w-full flex flex-col gap-4 max-w-[500px]">
+              
+              {errorMsg && (
+                <div className="mb-4 text-error text-sm bg-error-container p-3 rounded-xl flex items-center gap-2 text-left">
+                  <span className="material-symbols-outlined text-[18px]">error</span>
+                  {errorMsg}
                 </div>
-              </div>
-              <button className="w-full bg-primary text-on-primary font-label-md py-3 rounded-xl hover:shadow-md transition-all duration-300 mt-2 hover:bg-surface-tint">
-                Đăng nhập
-              </button>
-              <div className="text-right">
-                <button onClick={() => navigate('/forgot-password')} type="button" className="text-label-sm text-primary hover:underline bg-transparent border-none p-0 cursor-pointer">Quên mật khẩu?</button>
-              </div>
+              )}
+
+              <form className="w-full" onSubmit={handleLocalLogin}>
+                <div className="w-full flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 text-left">
+                    <label className="font-label-sm text-on-surface-variant ml-1 flex items-center gap-2" htmlFor="email">
+                      <span className="material-symbols-outlined text-[18px]">mail</span>
+                      Email
+                    </label>
+                    <input 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" 
+                      id="email" 
+                      placeholder="your@email.com" 
+                      type="email" 
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 text-left">
+                    <label className="font-label-sm text-on-surface-variant ml-1 flex items-center gap-2" htmlFor="password">
+                      <span className="material-symbols-outlined text-[18px]">lock</span>
+                      Mật khẩu
+                    </label>
+                    <div className="relative">
+                      <input 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 pr-12 py-3 rounded-xl border border-outline-variant/20 bg-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all duration-300 font-body-md text-on-surface" 
+                        id="password" 
+                        placeholder="••••••••" 
+                        type={showPassword ? "text" : "password"} 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none flex items-center justify-center p-1"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <button 
+                    type="submit" 
+                    disabled={isLoading}
+                    className="w-full bg-primary text-on-primary font-label-md py-3 rounded-xl hover:shadow-md transition-all duration-300 mt-2 hover:bg-surface-tint flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading && <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>}
+                    {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                  </button>
+                  <div className="text-right">
+                    <button onClick={() => navigate('/forgot-password')} type="button" className="text-label-sm text-primary hover:underline bg-transparent border-none p-0 cursor-pointer">Quên mật khẩu?</button>
+                  </div>
+                </div>
+              </form>
+
               <div className="flex items-center gap-4 my-2">
                 <div className="flex-1 h-[1px] bg-outline-variant/20"></div>
                 <span className="text-label-sm text-on-surface-variant/70">Hoặc</span>
@@ -139,6 +220,7 @@ export default function WelcomePage() {
                 <span className="font-label-md group-hover:text-surface-tint">Xem ở chế độ khách</span>
               </button>
             </div>
+            </div>
           </div>
 
           {/* Login Card (Right) */}
@@ -153,7 +235,7 @@ export default function WelcomePage() {
             <img 
               alt="Youth Union Event" 
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
-              src="https://lh3.googleusercontent.com/aida/AP1WRLvF0QO9Io0qUZtiT8XBUiSrZiFIZAkAmyEUWyrrUg1qwUCrjx60vRFsPdHrnRAhFmngCvu4XDZ8eIE_DXU4sYO8EMBIILg_nhhlbmRyw5jETXjJ4T6e2w4UA_14X4RTj9qhnBQQ6NUKnaCe3aXrnV18q-Vu-MCRZ01aJLUomDZe1hy3QJ7RktAUfsZTzgZUjggBy0SEhPPWWu0ZFMAhzI_7lecdnfYlPSVN7AjaCTcHnoRAu3H6gkYsapt9" 
+              src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
             />
             
             {/* Decorative badge that slides up on hover */}

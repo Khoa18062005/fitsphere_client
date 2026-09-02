@@ -5,10 +5,32 @@ export default function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Gửi yêu cầu khôi phục mật khẩu cho email:", email);
-    navigate('/otp', { state: { email } });
+    setIsLoading(true);
+    setErrorMsg('');
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        navigate('/otp', { state: { email } });
+      } else {
+        setErrorMsg(data.error || 'Có lỗi xảy ra, vui lòng thử lại.');
+      }
+    } catch (err) {
+      setErrorMsg('Không thể kết nối đến server.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,22 +58,22 @@ export default function ForgotPasswordPage() {
                 Địa chỉ Email
               </label>
               <div className="relative group">
-                <input 
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-300 font-body-md text-gray-800 hover:bg-white hover:border-blue-300 hover:shadow-md shadow-sm" 
-                  id="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Hãy nhập email của bạn..." 
-                  type="email" 
-                  required
-                />
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors duration-300">mail</span>
+                <input className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 bg-gray-50/50 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all duration-300 font-body-md text-gray-800 hover:bg-white hover:border-blue-300 hover:shadow-md shadow-sm" id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Nhập email của bạn..." type="email" required disabled={isLoading} />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-blue-500 transition-colors duration-300 pointer-events-none">mail</span>
               </div>
             </div>
             
-            <button type="submit" className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 mt-2 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold">
-              <span>Gửi mã xác nhận</span>
-              <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            {errorMsg && (
+              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2 text-left">
+                <span className="material-symbols-outlined text-[18px]">error</span>
+                {errorMsg}
+              </div>
+            )}
+            
+            <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 mt-2 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold disabled:opacity-70 disabled:pointer-events-none">
+              <span>{isLoading ? 'Đang xử lý...' : 'Gửi mã xác nhận'}</span>
+              {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">arrow_forward</span>}
+              {isLoading && <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>}
             </button>
             
             <div className="mt-4 text-center">

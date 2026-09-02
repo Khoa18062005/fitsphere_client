@@ -33,14 +33,37 @@ export default function OtpPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const otpValue = otp.join('');
     if (otpValue.length === 6) {
-      console.log("Xác thực OTP:", otpValue);
-      navigate('/reset-password');
+      setIsLoading(true);
+      setErrorMsg('');
+      try {
+        const response = await fetch('http://localhost:8080/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, otp: otpValue })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Gửi kèm email sang trang reset-password để dùng
+          navigate('/reset-password', { state: { email } });
+        } else {
+          setErrorMsg(data.error || 'OTP không hợp lệ hoặc đã hết hạn.');
+        }
+      } catch (err) {
+        setErrorMsg('Không thể kết nối đến server.');
+      } finally {
+        setIsLoading(false);
+      }
     } else {
-      alert("Vui lòng nhập đủ 6 số OTP");
+      setErrorMsg("Vui lòng nhập đủ 6 số OTP");
     }
   };
 
@@ -85,9 +108,17 @@ export default function OtpPage() {
               </div>
             </div>
             
-            <button type="submit" className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold">
-              <span>Xác nhận mã OTP</span>
-              <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">check_circle</span>
+            {errorMsg && (
+              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">error</span>
+                {errorMsg}
+              </div>
+            )}
+            
+            <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white font-label-lg py-4 rounded-2xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 group font-bold disabled:opacity-70 disabled:pointer-events-none">
+              <span>{isLoading ? 'Đang xác thực...' : 'Xác thực OTP'}</span>
+              {!isLoading && <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">check_circle</span>}
+              {isLoading && <span className="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>}
             </button>
             
             <div className="mt-2 flex flex-col items-center gap-4">
