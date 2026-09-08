@@ -1,106 +1,26 @@
 import React from 'react';
-import { useSidebar } from '../hooks/useSidebar';
+import { useNavigate } from 'react-router-dom';
 
 export default function EventDetailPage() {
-    const { isCollapsed } = useSidebar();
+  const navigate = useNavigate();
+
   return (
-    <div className="bg-background text-on-surface font-body-md antialiased overflow-x-hidden min-h-screen flex">
-      {/* SideNavBar */}
-      <aside className="bg-surface-container-low dark:bg-surface-container-lowest h-screen w-64 fixed left-0 top-0 border-r border-outline-variant/30 shadow-lg shadow-black/5 flex-col p-4 gap-2 z-50 hidden md:flex">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6 px-2">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-headline-md font-bold shadow-md shadow-primary/20">
-            <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>school</span>
-          </div>
-          <div>
-            <h1 className="font-headline-md text-headline-md font-extrabold text-primary" style={{ fontSize: '16px', lineHeight: '20px' }}>Quản lý Đoàn - Hội</h1>
-            <p className="font-label-sm text-label-sm text-on-surface-variant">Hệ thống điều hành</p>
-          </div>
-        </div>
-
-        {/* Navigation Links */}
-        <nav className="flex-1 flex flex-col gap-1">
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2.5 transition-colors group" href="/home">
-            <span className="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
-            <span className="font-label-md text-label-md">Trang Chủ</span>
-          </a>
-          <a className="bg-primary-container text-on-primary-container font-bold rounded-lg flex items-center gap-3 px-3 py-2.5 shadow-sm shadow-primary/10" href="/event-detail">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>event</span>
-            <span className="font-label-md text-label-md">Sự Kiện</span>
-          </a>
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2.5 transition-colors group" href="#">
-            <span className="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
-            <span className="font-label-md text-label-md">Sinh Viên</span>
-          </a>
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2.5 transition-colors group" href="#">
-            <span className="material-symbols-outlined group-hover:text-primary transition-colors">badge</span>
-            <span className="font-label-md text-label-md">Cán Bộ</span>
-          </a>
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2.5 transition-colors group" href="#">
-            <span className="material-symbols-outlined group-hover:text-primary transition-colors">analytics</span>
-            <span className="font-label-md text-label-md">Báo Cáo</span>
-          </a>
-        </nav>
-
-        {/* CTA */}
-        <div className="mt-auto mb-4">
-          <button className="w-full bg-primary text-on-primary rounded-xl py-3 px-4 font-label-md text-label-md hover:bg-primary/90 transition-all active:scale-95 shadow-md shadow-primary/20 flex justify-center items-center gap-2">
-            <span className="material-symbols-outlined">add</span>
-            Tạo Sự Kiện Mới
-          </button>
-        </div>
-
-        {/* Footer Links */}
-        <div className="border-t border-outline-variant/30 pt-4 flex flex-col gap-1">
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2 transition-colors" href="#">
-            <span className="material-symbols-outlined text-[20px]">help</span>
-            <span className="font-label-sm text-label-sm">Trợ giúp</span>
-          </a>
-          <a className="text-on-surface-variant hover:bg-surface-container-high rounded-lg flex items-center gap-3 px-3 py-2 transition-colors" href="/welcome">
-            <span className="material-symbols-outlined text-[20px]">logout</span>
-            <span className="font-label-sm text-label-sm">Đăng xuất</span>
-          </a>
-        </div>
-      </aside>
+    <div className="bg-background text-on-surface font-body-md antialiased overflow-x-hidden min-h-screen">
+      {/* Back Button Bar */}
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-8 pt-6">
+        <button 
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container-high text-on-surface transition-all font-label-md text-label-md shadow-sm border border-outline-variant/30 group cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          <span>Quay lại</span>
+        </button>
+      </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 md:ml-64 relative min-h-screen">
-        {/* TopNavBar */}
-        <header className="bg-surface/70 backdrop-blur-xl dark:bg-inverse-surface/70 border-b border-white/20 dark:border-outline/20 shadow-md shadow-primary/10 sticky top-0 z-40 flex justify-between items-center w-full px-6 py-3">
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Trigger */}
-            <button className="md:hidden text-on-surface hover:bg-primary/10 p-2 rounded-full transition-colors">
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <div className="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim hidden md:block">
-              Đoàn - Hội Portal
-            </div>
-          </div>
-
-          <div className="flex-1 flex justify-center max-w-md mx-4">
-            {/* Search Bar */}
-            <div className="relative w-full">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-              <input className="w-full bg-surface-container-highest/50 border border-outline-variant/50 rounded-full py-2 pl-10 pr-4 text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Tìm kiếm sự kiện, sinh viên..." type="text" />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="text-on-surface-variant hover:bg-primary/10 p-2 rounded-full transition-colors relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-            </button>
-            <button className="text-on-surface-variant hover:bg-primary/10 p-2 rounded-full transition-colors hidden sm:block">
-              <span className="material-symbols-outlined">settings</span>
-            </button>
-            <div className="ml-2 w-9 h-9 rounded-full overflow-hidden border-2 border-primary-container cursor-pointer shadow-sm">
-              <img alt="User profile" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKPBdSTcPL_r4n_glK33TLXxR01QzCsbZEL0GAW0XstcpWX43X8TFWzH6Kj_jKNkpZ5hh8g-w19NhCrvdZn-wfw55K1lm_690myFdfpTKt6Yh4RXowqS1qIpjYJWhOLqsDYw5yMRVacD5mk1MIcLTuAbrXFScreUghQvWU_vNSWXUBlVBVMD2kjQk7l3SZsWGYDGslCogR3FZjh56r0qnVpk7Hhpu4V09B9CqO47oWt7maQR2pHVC_hw" />
-            </div>
-          </div>
-        </header>
-
+      <main className="w-full relative min-h-screen">
         {/* Page Content */}
-        <div className="w-full mx-auto p-4 md:pl-8 md:pr-7 md:py-8 space-y-section-gap">
+        <div className="w-full max-w-7xl mx-auto p-4 md:px-8 py-6 space-y-section-gap">
           {/* Hero Section */}
           <section className="relative rounded-[24px] overflow-hidden shadow-2xl shadow-primary/10 bg-surface-container-highest">
             <div className="aspect-[16/9] md:aspect-[21/9] w-full relative">

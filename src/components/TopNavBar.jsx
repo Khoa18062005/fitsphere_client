@@ -1,6 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const getRoleLabel = (user) => {
+    const role = user?.roles?.[0];
+    const roleName = role?.name;
+    const description = role?.description || (
+        roleName === 'ROLE_BCH' ? 'Ban Chấp Hành' :
+        roleName === 'ROLE_CTV' ? 'Cộng Tác Viên' :
+        'Sinh Viên'
+    );
+
+    if (roleName === 'ROLE_BCH') {
+        return {
+            description,
+            colorClass: 'text-red-600 font-bold'
+        };
+    } else if (roleName === 'ROLE_CTV') {
+        return {
+            description,
+            colorClass: 'text-blue-600 font-bold'
+        };
+    } else {
+        return {
+            description,
+            colorClass: 'text-slate-500 font-medium'
+        };
+    }
+};
+
 export default function TopNavBar() {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
@@ -12,6 +39,8 @@ export default function TopNavBar() {
             setUser(JSON.parse(storedUser));
         }
     }, []);
+
+    const roleLabel = getRoleLabel(user);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -40,10 +69,10 @@ export default function TopNavBar() {
                 {/* Profile */}
                 <div className="relative">
                     <div 
-                        className="flex items-center gap-2 cursor-pointer hover:bg-surface-variant/50 p-1 pr-3 rounded-full transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-surface-variant/60 p-1 pl-1.5 pr-3.5 rounded-full transition-all duration-200 select-none group"
                         onClick={() => setShowDropdown(!showDropdown)}
                     >
-                        <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/50">
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/60 shadow-xs shrink-0 mr-0.5">
                             <img 
                                 className="w-full h-full object-cover" 
                                 alt="User Avatar" 
@@ -51,10 +80,15 @@ export default function TopNavBar() {
                                 src={user?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDymyhyp9xfH5_cyBVazCITdEB89IhlHyfXjd1KfnhO5bJvBV_s6FY0SaFVd4OxhJGSDe_IZXdifHjbKfsofJ7Bpc2HyP_9GKg4dH4LgC74gfRwt_WkSy76J-sdZPeQ9LIe9AfyjUwveIg_rVQZ8PHnOsX0mLzYkEELYmOm115ELHkY2_bQcwtR9KwY7F8WbCM3MtqZiG3zQNOVcKiPiY29LCOWpsmk7n-5d6pbsA2rc6MIb6uB9G9VIA"} 
                             />
                         </div>
-                        <span className="font-label-md text-label-md text-on-surface hidden sm:block">
-                            {user?.fullName || "Khách"}
-                        </span>
-                        <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
+                        <div className="hidden sm:flex flex-col text-left">
+                            <span className="font-label-md text-label-md text-on-surface font-bold leading-tight">
+                                {user?.fullName || "Khách"}
+                            </span>
+                            <span className={`text-[11px] leading-tight mt-0.5 ${roleLabel.colorClass}`}>
+                                {roleLabel.description}
+                            </span>
+                        </div>
+                        <span className={`material-symbols-outlined text-[20px] text-on-surface-variant transition-transform duration-300 ease-in-out ${showDropdown ? 'rotate-180 text-primary' : 'rotate-0'}`}>
                             arrow_drop_down
                         </span>
                     </div>
@@ -64,10 +98,10 @@ export default function TopNavBar() {
                         <div className="absolute right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-outline-variant/20 py-2 z-50">
                             <div className="px-4 py-2 border-b border-outline-variant/20 mb-2 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[20px] text-on-surface-variant">badge</span>
-                                <p className="font-label-md text-on-surface truncate">{user?.studentId || "Chưa cập nhật MSSV"}</p>
+                                <p className="font-label-md text-on-surface truncate font-mono font-medium">{user?.studentId || "Chưa cập nhật MSSV"}</p>
                             </div>
                             <button 
-                                onClick={() => navigate('/user-profile')}
+                                onClick={() => { setShowDropdown(false); navigate('/user-profile'); }}
                                 className="w-full text-left px-4 py-2 text-on-surface hover:bg-primary/10 transition-colors flex items-center gap-2 font-label-md"
                             >
                                 <span className="material-symbols-outlined text-[20px]">person</span>

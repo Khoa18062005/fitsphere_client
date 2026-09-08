@@ -1,23 +1,157 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useSidebar } from '../hooks/useSidebar';
 import SideNavBar from '../components/SideNavBar';
 import TopNavBar from '../components/TopNavBar';
 
+const getRoleInfo = (user) => {
+  let roleName = user?.roles?.[0]?.name || user?.systemRoles?.[0];
+  let description = user?.roles?.[0]?.description;
+
+  if (!description) {
+    if (roleName === 'ROLE_BCH') description = 'Ban Chấp Hành';
+    else if (roleName === 'ROLE_CTV') description = 'Cộng Tác Viên';
+    else description = 'Sinh Viên';
+  }
+
+  if (roleName === 'ROLE_BCH') {
+    return {
+      description,
+      icon: 'verified_user',
+      badgeClass: 'bg-red-500/10 text-red-600 border border-red-500/20'
+    };
+  } else if (roleName === 'ROLE_CTV') {
+    return {
+      description,
+      icon: 'volunteer_activism',
+      badgeClass: 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
+    };
+  } else {
+    return {
+      description,
+      icon: 'school',
+      badgeClass: 'bg-slate-500/10 text-slate-600 border border-slate-500/20'
+    };
+  }
+};
+
+const getUserPositionsList = (user) => {
+  if (user?.positions && user.positions.length > 0) {
+    return user.positions.map(p => ({
+      positionName: p.positionName,
+      unitName: p.unitName,
+      term: p.term
+    }));
+  }
+  if (user?.userPositions && user.userPositions.length > 0) {
+    return user.userPositions.map(up => ({
+      positionName: up.position?.name,
+      unitName: up.unit?.name,
+      term: up.term
+    }));
+  }
+  if (user?.currentPosition?.positionName || user?.position) {
+    return [{
+      positionName: user.currentPosition?.positionName || user.position,
+      unitName: user.currentPosition?.unitName || user.department || "Khoa Công nghệ Thông tin",
+      term: null
+    }];
+  }
+  return [];
+};
+
+const getUserPosition = (user) => {
+  const list = getUserPositionsList(user);
+  if (list.length > 0) {
+    const uniquePositions = [...new Set(list.map(p => p.positionName).filter(Boolean))];
+    return uniquePositions.join(', ');
+  }
+  return "Chưa cập nhật";
+};
+
+const getUserUnit = (user) => {
+  const list = getUserPositionsList(user);
+  if (list.length > 0) {
+    const uniqueUnits = [...new Set(list.map(p => p.unitName).filter(Boolean))];
+    return uniqueUnits.join(', ');
+  }
+  return user?.department || "Khoa Công nghệ Thông tin";
+};
+
+const getUserEmail = (user) => {
+  if (user?.email) return user.email;
+  if (user?.studentId) return `${user.studentId}@student.hcmute.edu.vn`;
+  return "Đang cập nhật";
+};
+
 export default function UserProfilePage() {
   const navigate = useNavigate();
-    const { isCollapsed } = useSidebar();
+  const { id } = useParams();
+  const location = useLocation();
+  const { isCollapsed } = useSidebar();
   const [user, setUser] = useState(null);
 
+  const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+  
+  // Kiểm tra xem đây có phải trang hồ sơ của chính mình hay không
+  const isOwnProfile = !id || (loggedInUser && (String(loggedInUser.id) === String(id) || String(loggedInUser.userId) === String(id)));
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-        setUser(JSON.parse(storedUser));
-    } else {
-        // Nếu chưa có user thì đẩy về trang welcome
+    // 1. Xem trang chính mình (/user-profile)
+    if (!id) {
+      if (loggedInUser) {
+        setUser(loggedInUser);
+      } else {
         navigate('/welcome');
+      }
+      return;
     }
-  }, [navigate]);
+
+    // 2. ID trên URL chính là bản thân
+    if (loggedInUser && (String(loggedInUser.id) === String(id) || String(loggedInUser.userId) === String(id))) {
+      setUser(loggedInUser);
+      return;
+    }
+
+    // 3. Xem đồng chí khác - khởi tạo ngay từ state nếu có truyền qua từ trang Nhân sự
+    if (location.state?.member) {
+      // Loại bỏ currentPosition cục bộ của card để luôn hiển thị đầy đủ mọi chức danh
+      const { currentPosition, ...cleanMember } = location.state.member;
+      setUser(cleanMember);
+    }
+
+    // 4. Đồng thời gọi API lấy thông tin chi tiết nhất từ Server
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/users/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUser(prev => ({ ...(prev || {}), ...data }));
+          return;
+        }
+      } catch (err) {
+        console.warn("Chưa tải được từ /api/users, đang thử qua /api/organization/members:", err);
+      }
+
+      // Fallback: lấy từ /api/organization/members để đảm bảo dữ liệu luôn hiển thị đầy đủ ngay cả khi server chưa restart
+      try {
+        const res = await fetch(`http://localhost:8080/api/organization/members`);
+        if (res.ok) {
+          const membersList = await res.json();
+          const found = membersList.find(m => String(m.userId) === String(id));
+          if (found) {
+            setUser(prev => ({ ...(prev || {}), ...found }));
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải thông tin nhân sự:", err);
+      }
+    };
+
+    fetchUserProfile();
+  }, [id, location.state]);
+
+  const roleInfo = getRoleInfo(user);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -49,28 +183,39 @@ export default function UserProfilePage() {
             </div>
           </div>
           <div className="flex-1 text-center md:text-left flex flex-col items-center md:items-start gap-2 z-10">
-            <div className="inline-flex items-center gap-1 bg-primary/15 text-primary font-label-sm text-label-sm px-3 py-1 rounded-full font-semibold">
-              <span className="material-symbols-outlined text-[14px]">school</span> Sinh viên
+            <div className={`inline-flex items-center gap-1.5 font-label-sm text-label-sm px-3.5 py-1 rounded-full font-bold shadow-xs ${roleInfo.badgeClass}`}>
+              <span className="material-symbols-outlined text-[15px]">{roleInfo.icon}</span> {roleInfo.description}
             </div>
-            <h1 className="font-headline-lg-mobile text-headline-lg-mobile md:font-display-lg md:text-display-lg text-primary mt-1">{user?.fullName || "Người dùng ẩn danh"}</h1>
+            <h1 className="font-headline-lg-mobile text-headline-lg-mobile md:font-display-lg md:text-display-lg text-primary mt-1 font-black">{user?.fullName || "Người dùng ẩn danh"}</h1>
             <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-1">
               <span className="material-symbols-outlined text-[18px]">wc</span> Giới tính: {user?.gender || "Chưa cập nhật"}
             </p>
             <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-1">
-              <span className="material-symbols-outlined text-[18px]">work</span> Chức vụ: {user?.position || "Chưa cập nhật"}
+              <span className="material-symbols-outlined text-[18px]">work</span> Chức vụ: {getUserPosition(user)}
             </p>
           </div>
-          <div className="mt-4 md:mt-0 shrink-0 z-10 flex flex-col gap-2">
-            <button className="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm shadow-primary/20">
-              <span className="material-symbols-outlined text-[20px]">edit</span> Chỉnh sửa
-            </button>
-            <button onClick={() => navigate('/update-password')} className="bg-white text-primary border border-primary/30 font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-2 shadow-sm">
-              <span className="material-symbols-outlined text-[20px]">password</span> Thiết lập mật khẩu
-            </button>
-            <button onClick={handleLogout} className="bg-error text-on-error font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-error/90 transition-colors flex items-center gap-2 shadow-sm shadow-error/20">
-              <span className="material-symbols-outlined text-[20px]">logout</span> Đăng xuất
-            </button>
-          </div>
+          {isOwnProfile ? (
+            <div className="mt-4 md:mt-0 shrink-0 z-10 flex flex-col gap-2">
+              <button className="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm shadow-primary/20 cursor-pointer">
+                <span className="material-symbols-outlined text-[20px]">edit</span> Chỉnh sửa
+              </button>
+              <button onClick={() => navigate('/update-password')} className="bg-white text-primary border border-primary/30 font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-primary/5 transition-colors flex items-center gap-2 shadow-sm cursor-pointer">
+                <span className="material-symbols-outlined text-[20px]">password</span> Thiết lập mật khẩu
+              </button>
+              <button onClick={handleLogout} className="bg-error text-on-error font-label-md text-label-md px-6 py-3 rounded-lg hover:bg-error/90 transition-colors flex items-center gap-2 shadow-sm shadow-error/20 cursor-pointer">
+                <span className="material-symbols-outlined text-[20px]">logout</span> Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 md:mt-0 shrink-0 z-10 flex flex-col gap-2">
+              <button 
+                onClick={() => navigate(-1)} 
+                className="bg-primary hover:bg-primary/90 text-white font-label-md text-label-md px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-sm shadow-primary/20 hover:scale-[1.02] cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[20px]">arrow_back</span> Quay lại
+              </button>
+            </div>
+          )}
         </section>
         {/* Navigation Tabs */}
         <section className="border-b border-outline-variant/30 flex overflow-x-auto hide-scrollbar">
@@ -92,8 +237,40 @@ export default function UserProfilePage() {
               <span className="material-symbols-outlined text-primary">person_book</span> Giới thiệu
             </h3>
             <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              Sinh viên trường Đại học Sư phạm Kỹ thuật TP.HCM. Tích cực tham gia các hoạt động Đoàn - Hội để rèn luyện kỹ năng mềm và mở rộng mối quan hệ. Đam mê học hỏi và ứng dụng công nghệ.
+              {isOwnProfile ? (
+                "Sinh viên trường Đại học Sư phạm Kỹ thuật TP.HCM. Tích cực tham gia các hoạt động Đoàn - Hội để rèn luyện kỹ năng mềm và mở rộng mối quan hệ. Đam mê học hỏi và ứng dụng công nghệ."
+              ) : (
+                `Đồng chí ${user?.fullName || ""} hiện đang đảm nhiệm chức danh ${getUserPosition(user)} tại ${getUserUnit(user)}. Tích cực tham gia lãnh đạo, tổ chức và cống hiến cho công tác Đoàn và phong trào thanh niên - sinh viên khoa Công nghệ Thông tin.`
+              )}
             </p>
+
+            {/* Danh sách các chức vụ đảm nhiệm */}
+            {getUserPositionsList(user).length > 0 && (
+              <div className="mt-6 pt-5 border-t border-outline-variant/30">
+                <h4 className="font-title-sm text-title-sm text-on-surface mb-3 flex items-center gap-2 font-bold">
+                  <span className="material-symbols-outlined text-primary text-[20px]">assignment_ind</span>
+                  Chức vụ & Đơn vị công tác
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {getUserPositionsList(user).map((pos, idx) => (
+                    <div key={idx} className="bg-surface-container/60 rounded-xl p-3.5 border border-outline-variant/30 flex flex-col gap-1.5 hover:border-primary/50 transition-colors shadow-xs">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-primary text-sm">{pos.positionName}</span>
+                        {pos.term && (
+                          <span className="text-[11px] bg-primary/10 text-primary px-2.5 py-0.5 rounded-full font-medium shrink-0">
+                            {pos.term}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[15px] text-primary/70">domain</span>
+                        {pos.unitName}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           {/* Contact/Details */}
           <div className="glass-card rounded-xl p-6 flex flex-col gap-5">
@@ -106,9 +283,20 @@ export default function UserProfilePage() {
               </div>
               <div className="min-w-0">
                 <div className="font-label-sm text-label-sm text-on-surface-variant">Email</div>
-                <div className="font-body-md text-body-md text-on-surface truncate">{user?.email || "Đang cập nhật"}</div>
+                <div className="font-body-md text-body-md text-on-surface truncate">{getUserEmail(user)}</div>
               </div>
             </div>
+            {user?.studentId && (
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
+                  <span className="material-symbols-outlined text-[20px]">badge</span>
+                </div>
+                <div>
+                  <div className="font-label-sm text-label-sm text-on-surface-variant">Mã số sinh viên</div>
+                  <div className="font-body-md text-body-md text-on-surface font-mono font-medium">{user.studentId}</div>
+                </div>
+              </div>
+            )}
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary shrink-0">
                 <span className="material-symbols-outlined text-[20px]">call</span>
@@ -124,7 +312,7 @@ export default function UserProfilePage() {
               </div>
               <div>
                 <div className="font-label-sm text-label-sm text-on-surface-variant">Khoa/Đơn vị</div>
-                <div className="font-body-md text-body-md text-on-surface">{user?.department || "Công nghệ Thông tin"}</div>
+                <div className="font-body-md text-body-md text-on-surface">{getUserUnit(user)}</div>
               </div>
             </div>
           </div>
